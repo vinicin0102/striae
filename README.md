@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# STRIAÉ — Funil de Vendas
 
-## Getting Started
+Funil completo: **Anúncio → Quiz → Análise → Chat com IA → Apresentação do STRIAÉ → Oferta 40% OFF → Checkout Pix → Confirmação**.
 
-First, run the development server:
+Escopo explicitamente fora deste projeto (a construir depois): área de membros, app completo, dashboard, videoaulas, biblioteca de conteúdo, sistema de progresso.
+
+## Rodando localmente
 
 ```bash
+npm install
+npx prisma migrate dev   # cria/atualiza o banco SQLite local (prisma/dev.db)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000 — redireciona para `/funil`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js 16 (App Router) + TypeScript + Tailwind v4** — front-end e API routes no mesmo projeto.
+- **Prisma + SQLite** — `QuizSession`, `ChatMessage`, `Order`, `WebhookEvent` (ver `prisma/schema.prisma`).
+- **Zustand (persist)** — guarda `quizSessionId`/`orderId` no localStorage do navegador da visitante (sem exigir login).
 
-## Learn More
+## Rotas do funil
 
-To learn more about Next.js, take a look at the following resources:
+`/funil` → `/funil/quiz` → `/funil/analise` → `/funil/chat` → `/funil/pagamento/[orderId]` → `/funil/sucesso`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## IA e Pix: mock por padrão
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Nenhuma credencial real foi configurada, então o projeto usa provedores **mock** funcionais (não é um protótipo — o fluxo funciona de ponta a ponta):
 
-## Deploy on Vercel
+- **IA** (`src/lib/ai/mockProvider.ts`): conduz a conversa por um roteiro determinístico baseado no perfil do quiz (sem custo, sem API externa). Trocar para a Anthropic real: definir `AI_PROVIDER=anthropic` e `ANTHROPIC_API_KEY` no `.env` — `src/lib/ai/index.ts` troca o provedor automaticamente, sem tocar nas telas.
+- **Pix** (`src/lib/payment/mockProvider.ts`): gera QR Code real (escaneável) e código copia-e-cola, mas a transação não é real. Para confirmar o pagamento em desenvolvimento (já que um provedor real não alcança `localhost`), use o botão **"[dev] simular pagamento aprovado"** na tela de pagamento, ou `POST /api/payment/dev-confirm`. Esse endpoint fica bloqueado em produção (ver `src/app/api/payment/dev-confirm/route.ts`).
+- Para ligar um provedor Pix real (Mercado Pago, Efí, Asaas...), implemente uma classe em `src/lib/payment/<provider>Provider.ts` seguindo a interface `PixProvider` (`src/lib/payment/provider.ts`) e registre-a em `src/lib/payment/index.ts`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Toda a configuração de marca/oferta/pagamento/IA fica centralizada em [`src/lib/config.ts`](src/lib/config.ts).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Segurança do pagamento
+
+- O frontend **nunca** marca um pedido como pago — apenas lê o status (`GET /api/payment/status/[orderId]`).
+- Quem muda o status é `POST /api/payment/webhook` (provedor real) ou `POST /api/payment/dev-confirm` (apenas fora de produção), ambos passando por `applyOrderStatusUpdate` (`src/lib/payment/applyStatusUpdate.ts`), que é idempotente — um webhook duplicado não duplica a compra.
+- Preço e desconto vêm sempre do servidor (`src/lib/config.ts`), nunca do cliente.
+
+## O que falta antes de produção
+
+- Trocar `AI_PROVIDER`/`PIX_PROVIDER` para valores reais e implementar o provedor Pix escolhido.
+- Trocar o banco SQLite por Postgres (ajustar `datasource` em `prisma/schema.prisma` + `DATABASE_URL`) — SQLite é só para desenvolvimento local.
+- Configurar `NEXT_PUBLIC_META_PIXEL_ID` / `NEXT_PUBLIC_GA_MEASUREMENT_ID` / `NEXT_PUBLIC_GTM_ID` para os eventos de tracking (já disparados em todo o funil via `src/lib/tracking.ts`).
+- Enviar a foto real da Dra. Anna Christina via `NEXT_PUBLIC_SPECIALIST_PHOTO_URL` (hoje usa um avatar com iniciais).

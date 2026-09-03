@@ -1,0 +1,79 @@
+// STRIAÉ — Skin Renewal System
+// Prisma schema for the sales funnel (quiz sessions, chat, orders/payments)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model QuizSession {
+  id               String   @id @default(cuid())
+  region           String? // Pergunta 1: onde as estrias incomodam
+  duration         String? // Pergunta 2: há quanto tempo
+  mainConcern      String? // Pergunta 3: o que mais incomoda (peso maior)
+  previousAttempts String? // Pergunta 4: JSON array (múltipla seleção)
+  interest         String? // Pergunta 5: sim/não
+  utmSource        String?
+  utmMedium        String?
+  utmCampaign      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  messages ChatMessage[]
+  orders   Order[]
+}
+
+model ChatMessage {
+  id            String      @id @default(cuid())
+  quizSessionId String
+  quizSession   QuizSession @relation(fields: [quizSessionId], references: [id])
+  role          String // "assistant" | "user"
+  content       String
+  meta          String? // JSON: { quickReplies?, showProductCard?, showOfferCard? }
+  createdAt     DateTime    @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  quizSessionId String?
+  quizSession   QuizSession? @relation(fields: [quizSessionId], references: [id])
+
+  productName   String
+  originalPrice Int // em centavos
+  finalPrice    Int // em centavos
+  discountPct   Int
+
+  status        OrderStatus @default(PENDING)
+
+  pixTxId       String?     @unique // id da transação no provedor
+  pixCopyPaste  String?
+  pixQrCodeUrl  String?
+  expiresAt     DateTime?
+  paidAt        DateTime?
+
+  providerRaw   String? // payload bruto da última atualização do provedor (auditoria)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model WebhookEvent {
+  id          String   @id @default(cuid())
+  provider    String
+  eventType   String?
+  pixTxId     String?
+  payload     String
+  processedOk Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

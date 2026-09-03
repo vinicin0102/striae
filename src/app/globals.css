@@ -1,26 +1,109 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* STRIAÉ — Design System */
+  /* Base — creme/ivory quente, para transmitir sofisticação sem peso */
+  --color-base-50: #fdfaf8;
+  --color-base-100: #faf4f0;
+  --color-base-200: #f3e8e1;
+
+  /* Rosa/nude — cor de marca primária, feminina e premium */
+  --color-rose-100: #f6e4e2;
+  --color-rose-200: #ecc9c6;
+  --color-rose-400: #cf8f8d;
+  --color-rose-500: #b9726f;
+  --color-rose-600: #a05a58;
+
+  /* Vinho profundo — contraste/CTA, transmite sofisticação */
+  --color-plum-600: #6c2f3b;
+  --color-plum-700: #55212b;
+  --color-plum-900: #351218;
+
+  /* Dourado suave — detalhes premium, usar com moderação */
+  --color-gold-400: #cba36b;
+  --color-gold-500: #b98a4a;
+
+  /* Texto/neutros */
+  --color-ink-900: #2c2320;
+  --color-ink-700: #4a3d38;
+  --color-ink-500: #7a6a63;
+  --color-ink-300: #b8aaa3;
+
+  --background: var(--color-base-50);
+  --foreground: var(--color-ink-900);
+
+  --radius-card: 1.25rem;
+  --shadow-soft: 0 8px 30px -8px rgba(108, 47, 59, 0.18);
+  --shadow-softer: 0 4px 16px -6px rgba(108, 47, 59, 0.12);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-base-50: var(--color-base-50);
+  --color-base-100: var(--color-base-100);
+  --color-base-200: var(--color-base-200);
+
+  --color-rose-100: var(--color-rose-100);
+  --color-rose-200: var(--color-rose-200);
+  --color-rose-400: var(--color-rose-400);
+  --color-rose-500: var(--color-rose-500);
+  --color-rose-600: var(--color-rose-600);
+
+  --color-plum-600: var(--color-plum-600);
+  --color-plum-700: var(--color-plum-700);
+  --color-plum-900: var(--color-plum-900);
+
+  --color-gold-400: var(--color-gold-400);
+  --color-gold-500: var(--color-gold-500);
+
+  --color-ink-900: var(--color-ink-900);
+  --color-ink-700: var(--color-ink-700);
+  --color-ink-500: var(--color-ink-500);
+  --color-ink-300: var(--color-ink-300);
+
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-softer: var(--shadow-softer);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s ease-out both;
+}
+
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.typing-dot {
+  animation: typing-dot 1.1s ease-in-out infinite;
 }
