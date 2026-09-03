@@ -8,16 +8,20 @@ Escopo explicitamente fora deste projeto (a construir depois): área de membros,
 
 ```bash
 npm install
-npx prisma migrate dev   # cria/atualiza o banco SQLite local (prisma/dev.db)
+vercel env pull       # baixa DATABASE_URL (Postgres/Neon) para .env.local
 npm run dev
 ```
 
 Abra http://localhost:3000 — redireciona para `/funil`.
 
+Se ainda não tiver o projeto linkado à Vercel, rode `vercel link` primeiro.
+Sem `.env.local`, defina `DATABASE_URL` manualmente (Postgres) e rode
+`npx prisma migrate dev` antes do `npm run dev`.
+
 ## Stack
 
 - **Next.js 16 (App Router) + TypeScript + Tailwind v4** — front-end e API routes no mesmo projeto.
-- **Prisma + SQLite** — `QuizSession`, `ChatMessage`, `Order`, `WebhookEvent` (ver `prisma/schema.prisma`).
+- **Prisma + Postgres (Neon, via integração Vercel)** — `QuizSession`, `ChatMessage`, `Order`, `WebhookEvent` (ver `prisma/schema.prisma`). Necessário porque funções serverless da Vercel não têm sistema de arquivos persistente/compartilhado — um banco SQLite local não sobrevive entre invocações.
 - **Zustand (persist)** — guarda `quizSessionId`/`orderId` no localStorage do navegador da visitante (sem exigir login).
 
 ## Rotas do funil
@@ -43,6 +47,5 @@ Toda a configuração de marca/oferta/pagamento/IA fica centralizada em [`src/li
 ## O que falta antes de produção
 
 - Trocar `AI_PROVIDER`/`PIX_PROVIDER` para valores reais e implementar o provedor Pix escolhido.
-- Trocar o banco SQLite por Postgres (ajustar `datasource` em `prisma/schema.prisma` + `DATABASE_URL`) — SQLite é só para desenvolvimento local.
 - Configurar `NEXT_PUBLIC_META_PIXEL_ID` / `NEXT_PUBLIC_GA_MEASUREMENT_ID` / `NEXT_PUBLIC_GTM_ID` para os eventos de tracking (já disparados em todo o funil via `src/lib/tracking.ts`).
-- Enviar a foto real da Dra. Anna Christina via `NEXT_PUBLIC_SPECIALIST_PHOTO_URL` (hoje usa um avatar com iniciais).
+- Enviar a foto real da Dra. Anna Christina via `NEXT_PUBLIC_SPECIALIST_PHOTO_URL` (ou `public/images/especialista.jpg`) e as demais imagens em `public/images/` (ver `public/images/README.md`).
