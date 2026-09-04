@@ -7,11 +7,11 @@ export const brand = {
   tagline: "Sua pele. Sua rotina. Seu cuidado.",
   specialist: {
     name: "Dra. Anna Christina",
-    role: "Assistente virtual",
+    role: "Médica",
     // Caminho da foto real, enviada pelo administrador (ver public/images/README.md).
     // Se o arquivo não existir ainda, os componentes que usam isso (Avatar) caem
     // de volta num avatar ilustrado — nunca numa imagem fictícia apresentada como real.
-    photoUrl: process.env.NEXT_PUBLIC_SPECIALIST_PHOTO_URL || "/images/especialista.jpg",
+    photoUrl: process.env.NEXT_PUBLIC_SPECIALIST_PHOTO_URL || "/doutora.jpg",
   },
 };
 
@@ -29,7 +29,7 @@ export const offer = {
     "Exercícios complementares",
     "Receitas e preparações",
     "Conteúdos sobre produtos e ativos",
-    "Assistente virtual sempre disponível",
+    "Suporte da Dra. sempre disponível",
     "Acompanhamento da sua rotina",
   ],
 };

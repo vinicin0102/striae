@@ -10,7 +10,7 @@ import { useFunnelStore } from "@/lib/store";
 const STAGES = [
   "Analisando suas respostas...",
   "Encontramos alguns pontos importantes sobre o seu perfil.",
-  `Agora vamos conversar com o assistente virtual da ${brand.specialist.name} para entender melhor sua rotina.`,
+  `Agora vamos conversar com a ${brand.specialist.name} para entender melhor sua rotina.`,
 ];
 
 export default function AnalysisPage() {
